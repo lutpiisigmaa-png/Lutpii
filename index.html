@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gojo Glass Center V7</title>
+    <title>Gojo Glass Center V8</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
 
@@ -44,32 +44,31 @@
         }
 
         .side-left, .side-right {
-            width: 50vw;
-            will-change: transform;
+            width: 50vw; will-change: transform;
         }
-        
         .side-left { padding-right: 20px; }
         .side-right { padding-left: 20px; }
 
-        /* --- SLIDER TENGAH (GARIS LURUS KAMPANG UDAH HILANG) --- */
+        /* --- SLIDER TENGAH DIMUSNAHKAN GARISNYA --- */
         .slider {
             position: absolute; top: 0; bottom: 0; left: 50%;
-            width: 4px; 
-            background: transparent; /* INI YANG BIKIN GARISNYA HILANG */
+            width: 0px; /* Di-nol-kan biar ga ada garis kampang */
             z-index: 50; cursor: ew-resize;
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* ICON GOJO */
+        /* ICON GOJO LANGSUNG DARI INTERNET */
         .custom-handle {
-            width: 48px; height: 48px; border-radius: 50%;
-            background-image: url('gojo.png');
+            width: 55px; height: 55px; border-radius: 50%;
+            background-image: url('https://i.pinimg.com/736x/87/40/a0/8740a0499e900c144fb6b00ec5961e93.jpg');
             background-size: cover; background-position: center;
-            border: 3px solid #fff; box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            border: 2px solid rgba(255,255,255,0.5); /* Border tipis estetik */
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
             will-change: transform; 
+            margin-left: -27.5px; /* Biar posisinya bener-bener di tengah titik 0 */
         }
 
-        /* --- STYLING UI MAIN MENU --- */
+        /* --- STYLING UI --- */
         h2 { font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; }
         .layer-back h2 { color: #fff; }
         .layer-back h2::before { content: ''; width: 6px; height: 32px; background: #3b82f6; border-radius: 4px; }
@@ -86,12 +85,10 @@
         .layer-back .btn-submit { background: #3b82f6; color: #fff; }
         .layer-front .btn-submit { background: #111; color: #fff; }
 
-        /* LIST MAIN MENU BAWAAN */
         .task-list { list-style: none; }
         .task-card { padding: 18px; border-radius: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         .layer-back .task-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); }
         .layer-front .task-card { background: rgba(255,255,255,0.5); border: 1px solid rgba(0,0,0,0.05); }
-
         .task-text { font-size: 14px; font-weight: 600; line-height: 1.4; }
         .task-date { font-size: 11px; opacity: 0.6; margin-top: 4px; display: block; }
         
@@ -106,7 +103,6 @@
             background: rgba(20, 20, 22, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 100;
         }
-
         .dock-item {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             width: 65px; height: 50px; border-radius: 20px; background: transparent; border: none; color: #888;
@@ -116,44 +112,36 @@
         .dock-item.active { color: #fff; background: rgba(255,255,255,0.1); }
         .dock-item.active svg { transform: scale(1.1); fill: #3b82f6; }
 
-        /* OTHER VIEWS (BOARD & HISTORY) */
+        /* OTHER VIEWS */
         .view-board, .view-history {
             position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
             background: #050505; color: #fff; padding: 40px 20px 100px 20px;
-            overflow-y: auto; display: none; opacity: 0; transition: opacity 0.3s;
+            overflow-y: auto; display: none; z-index: 90;
         }
         .view-board h1, .view-history h1 { font-size: 32px; font-weight: 800; margin-bottom: 30px; }
         
         .board-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
         .board-card { border-radius: 20px; padding: 20px; min-height: 150px; display: flex; flex-direction: column; justify-content: space-between; }
-        
         .board-tag { font-size: 10px; font-weight: 800; padding: 6px 10px; border-radius: 8px; text-transform: uppercase; width: max-content;}
 
-        /* --- THE MAGIC COLOR CODING FOR BOARD & HISTORY --- */
-        /* SURVIVAL CARD (DARK BLUE) */
+        /* WARNA KARTU BOARD & HISTORY */
         .card-survival {
             background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
-            border: 1px solid rgba(59, 130, 246, 0.4);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            color: #fff;
+            border: 1px solid rgba(59, 130, 246, 0.4); box-shadow: 0 4px 10px rgba(0,0,0,0.3); color: #fff;
         }
         .card-survival .task-text { color: #fff; }
         .card-survival .task-date { color: rgba(255,255,255,0.7); }
         .card-survival .btn-check { border-color: rgba(255,255,255,0.4); }
         .card-survival .board-tag { background: #3b82f6; color: #fff; }
 
-        /* COMMANDER CARD (WHITE) */
         .card-commander {
             background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
-            border: 1px solid rgba(0,0,0,0.1);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            color: #111;
+            border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 4px 10px rgba(0,0,0,0.05); color: #111;
         }
         .card-commander .task-text { color: #111; }
         .card-commander .task-date { color: rgba(0,0,0,0.5); }
         .card-commander .btn-check { border-color: rgba(0,0,0,0.3); }
         .card-commander .board-tag { background: #111; color: #fff; }
-
     </style>
 </head>
 <body>
@@ -199,4 +187,143 @@
 
     <div class="dock-container">
         <button class="dock-item active" onclick="switchTab('main', this)">
-            <svg viewBox="0 0 24 24"><path d="M14 10H3v2h11v-2zm0-4H3v2h11V6zm4 8.29L16.29 13l-1.42 1.41L16.59 16l-1.72 1.71 1.42 1.41L18 17.41l1.71 1.71 1.41-1.41L19.41 16l1.7
+            <svg viewBox="0 0 24 24"><path d="M14 10H3v2h11v-2zm0-4H3v2h11V6zm4 8.29L16.29 13l-1.42 1.41L16.59 16l-1.72 1.71 1.42 1.41L18 17.41l1.71 1.71 1.41-1.41L19.41 16l1.71-1.71-1.41-1.41L18 14.29zM3 16h11v-2H3v2z"></path></svg>
+            Notes
+        </button>
+        <button class="dock-item" onclick="switchTab('board', this)">
+            <svg viewBox="0 0 24 24"><path d="M4 11h5V5H4v6zm0 7h5v-6H4v6zm6 0h5v-6h-5v6zm6 0h5v-6h-5v6zm-6-7h5V5h-5v6zm6-6v6h5V5h-5z"></path></svg>
+            Board
+        </button>
+        <button class="dock-item" onclick="switchTab('history', this)">
+            <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"></path></svg>
+            History
+        </button>
+    </div>
+
+    <script>
+        // PAKAI DATABASE BARU BIAR GAK CRASH SAMA YANG LAMA
+        let tasks = [];
+        try {
+            tasks = JSON.parse(localStorage.getItem('entj_v8_final')) || [];
+            if (!Array.isArray(tasks)) tasks = [];
+        } catch(e) {
+            tasks = [];
+        }
+
+        if (tasks.length === 0) {
+            tasks = [
+                { id: 1, type: 'dark', text: 'Ujian lusa! Review total.', date: '20 Jun 2026' },
+                { id: 2, type: 'light', text: 'Template web markaz baru.', date: '20 Jun 2026' }
+            ];
+        }
+
+        const slider = document.getElementById('drag-slider');
+        const layerFront = document.getElementById('layer-front');
+        const contentLight = document.getElementById('content-light');
+        const contentDark = document.getElementById('content-dark');
+        const gojoIcon = document.getElementById('gojo-icon');
+        const appContainer = document.querySelector('.app-container');
+        
+        let isDragging = false;
+        let currentPercent = 50;
+
+        const updateUI = (percent, activeDrag = false) => {
+            if(!slider || !layerFront) return;
+            slider.style.left = `${percent}%`;
+            layerFront.style.clipPath = `inset(0 0 0 ${percent}%)`;
+            
+            const offset = (percent - 50) / 2;
+            contentLight.style.transform = `translateX(${offset}vw)`;
+            contentDark.style.transform = `translateX(${offset}vw)`;
+
+            const scale = activeDrag ? 1.15 : 1;
+            const rotation = (percent - 50) * 4; 
+            gojoIcon.style.transform = `scale(${scale}) rotate(${rotation}deg)`;
+        };
+
+        const startDrag = () => { isDragging = true; updateUI(currentPercent, true); };
+        const stopDrag = () => { isDragging = false; updateUI(currentPercent, false); };
+        
+        const drag = (e) => {
+            if (!isDragging) return;
+            let clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            currentPercent = (clientX / appContainer.offsetWidth) * 100;
+            if (currentPercent < 0) currentPercent = 0; if (currentPercent > 100) currentPercent = 100;
+            updateUI(currentPercent, true);
+        };
+
+        if(slider) {
+            slider.addEventListener('mousedown', startDrag); document.addEventListener('mousemove', drag); document.addEventListener('mouseup', stopDrag);
+            slider.addEventListener('touchstart', startDrag, {passive: true}); document.addEventListener('touchmove', drag, {passive: true}); document.addEventListener('touchend', stopDrag);
+            updateUI(50, false);
+        }
+
+        function switchTab(viewId, btn) {
+            document.querySelectorAll('.dock-item').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+            ['main', 'board', 'history'].forEach(v => {
+                let el = document.getElementById(`view-${v}`);
+                if(el) el.style.display = 'none';
+            });
+            let target = document.getElementById(`view-${viewId}`);
+            if(target) target.style.display = 'block';
+        }
+
+        function addNote(type) {
+            const inputEl = document.getElementById(`${type}-input`);
+            if(!inputEl) return;
+            const text = inputEl.value.trim();
+            if (!text) return;
+            tasks.unshift({ id: Date.now(), type, text, date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) });
+            inputEl.value = ''; 
+            localStorage.setItem('entj_v8_final', JSON.stringify(tasks)); 
+            renderData();
+        }
+
+        function checkTask(id) {
+            tasks = tasks.filter(t => t.id !== id); 
+            localStorage.setItem('entj_v8_final', JSON.stringify(tasks)); 
+            renderData();
+        }
+
+        function renderData() {
+            const darkList = document.getElementById('dark-list'); 
+            const lightList = document.getElementById('light-list');
+            const gridBoard = document.getElementById('board-grid'); 
+            const histList = document.getElementById('history-list');
+            
+            if(!darkList || !lightList || !gridBoard || !histList) return;
+
+            darkList.innerHTML = ''; lightList.innerHTML = ''; gridBoard.innerHTML = ''; histList.innerHTML = '';
+
+            tasks.forEach(task => {
+                const cardMain = `
+                    <li class="task-card">
+                        <div><span class="task-text">${task.text}</span><span class="task-date">${task.date}</span></div>
+                        <button class="btn-check" onclick="checkTask(${task.id})"></button>
+                    </li>`;
+                if (task.type === 'dark') darkList.innerHTML += cardMain;
+                if (task.type === 'light') lightList.innerHTML += cardMain;
+
+                const themeClass = task.type === 'dark' ? 'card-survival' : 'card-commander';
+                const tagText = task.type === 'dark' ? 'SURVIVAL' : 'COMMANDER';
+
+                histList.innerHTML += `
+                    <li class="task-card ${themeClass}">
+                        <div><span class="task-text">${task.text}</span><span class="task-date">${task.date}</span></div>
+                        <button class="btn-check" onclick="checkTask(${task.id})"></button>
+                    </li>`;
+
+                gridBoard.innerHTML += `
+                    <div class="board-card ${themeClass}">
+                        <p class="task-text" style="line-height: 1.5; margin-bottom: 15px;">${task.text}</p>
+                        <span class="board-tag">${tagText}</span>
+                    </div>`;
+            });
+        }
+        
+        // Panggil renderData pas pertama buka
+        renderData();
+    </script>
+</body>
+</html>
