@@ -3,297 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ENTJ Command Center v2.0 - Gojo Edition</title>
+    <title>Gojo Split Center</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
-
-        /* CSS VARIABLES: THEME BASE (DARK MODE - INFINITE VOID) */
-        :root {
-            --bg-body: #050505;
-            --text-main: #fcfcfc;
-            --text-muted: #88888a;
-            --panel-survival-bg: linear-gradient(180deg, rgba(30,30,30,0.6) 0%, rgba(10,10,10,0.4) 100%);
-            --panel-commander-bg: linear-gradient(180deg, rgba(30,30,30,0.6) 0%, rgba(10,10,10,0.4) 100%);
-            --accent-survival: #ff4d4d; /* Red Accent */
-            --accent-commander: #1fffc1; /* Teal Accent */
-            --card-bg: rgba(255, 255, 255, 0.05);
-            --border-color: rgba(255, 255, 255, 0.1);
-            --slider-color: #fcfcfc;
-            --tab-bar-bg: rgba(20, 20, 22, 0.85);
-            --input-bg: #1a1a1e;
-        }
-
-        /* LIGHT MODE VARIABLES (REVERSE CURSED TECHNIQUE - WHITE) */
-        .light-theme {
-            --bg-body: #f7f7f9;
-            --text-main: #111113;
-            --text-muted: #6b7280;
-            --panel-survival-bg: linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(240,240,245,0.5) 100%);
-            --panel-commander-bg: linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(240,240,245,0.5) 100%);
-            --accent-survival: #ef4444;
-            --accent-commander: #0d9488;
-            --card-bg: rgba(0, 0, 0, 0.03);
-            --border-color: rgba(0, 0, 0, 0.08);
-            --slider-color: #111113;
-            --tab-bar-bg: rgba(255, 255, 255, 0.9);
-            --input-bg: #e5e7eb;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
 
         * {
             margin: 0; padding: 0; box-sizing: border-box;
-            font-family: 'Inter', -apple-system, system-ui, sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            height: 100vh;
+            height: 100vh; width: 100vw;
+            overflow: hidden; 
+            background: #000; /* Dasar fallback */
+        }
+
+        /* --- THE REAL SPLIT SCREEN MAGIC --- */
+        .split-wrapper {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100vw; 
+            height: calc(100vh - 65px); /* Sisa buat bottom bar */
+            overflow: hidden;
+        }
+
+        /* RIGHT PANEL (WHITE MODE - COMMANDER) */
+        /* Berada di layer bawah, ukurannya fix 100vw (Full Screen) */
+        .panel-right {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100vw; height: 100%;
+            background: #f7f7f9;
+            color: #111113;
+            z-index: 1;
+        }
+
+        /* LEFT PANEL (BLACK MODE - SURVIVAL) */
+        /* Berada di layer atas, ukurannya berubah-ubah pake persentase */
+        .panel-left {
+            position: absolute;
+            top: 0; left: 0;
+            width: 50%; /* Default awal */
+            height: 100%;
+            background: #050505;
+            color: #fcfcfc;
+            z-index: 2;
+            overflow: hidden; /* Motong konten inner yang kelebihan */
+            border-right: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* INNER CONTENT WRAPPER */
+        /* Ini kunci biar konten GAK KEGENCET. Fix 100vw! */
+        .inner-content {
             width: 100vw;
-            overflow: hidden; /* Fix gap issue */
-            display: flex;
-            transition: background-color 0.4s ease;
+            height: 100%;
+            padding: 30px 20px;
+            overflow-y: auto;
+            /* Layouting dalam panel */
+            display: grid;
+            grid-template-columns: 50vw 50vw;
         }
 
-        /* GLOBAL HEADER (TOP BAR) */
-        header {
-            position: fixed; top: 0; left: 0; width: 100%; height: 50px;
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 15px; border-bottom: 1px solid var(--border-color);
-            background: rgba(var(--bg-body), 0.8); backdrop-filter: blur(5px);
-            z-index: 100;
+        /* Khusus buat penempatan konten di kanan */
+        .content-commander {
+            grid-column: 2;
+            padding-right: 20px;
+            padding-left: 20px;
         }
 
-        header h1 { font-size: 16px; font-weight: 800; letter-spacing: -0.5px; }
-        
-        .header-actions { display: flex; gap: 10px; align-items: center; }
-        
-        /* THEME TOGGLE BUTTON */
-        .theme-toggle {
-            background: transparent; border: 1px solid var(--border-color);
-            color: var(--text-main); font-size: 14px; padding: 5px 10px;
-            border-radius: 20px; cursor: pointer; font-weight: 600;
+        .content-survival {
+            grid-column: 1;
+            padding-right: 20px;
         }
 
-        /* SPLIT CONTAINER (The Real Deal) */
-        .split-container {
-            position: absolute; top: 50px; bottom: 60px; /* Space for Top/Bottom bars */
-            left: 0; width: 100vw; display: flex;
-        }
-
-        /* LIQUID GLASS PANEL */
-        .panel {
-            position: absolute; top: 0; bottom: 0;
-            overflow-y: auto; padding: 25px 15px;
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            transition: transform 0.05s linear; /* Smooth drag */
-        }
-
-        .panel-survival {
-            left: 0; width: 50%; /* Default */
-            background: var(--panel-survival-bg);
-            border-right: 1px solid var(--border-color);
-        }
-
-        .panel-commander {
-            right: 0; width: 50%; /* Default */
-            background: var(--panel-commander-bg);
-        }
-
-        /* MINIMALIST VISUAL SLIDER */
+        /* --- SLIDER GOJO --- */
         .divider {
-            position: absolute; left: 50%; top: 0; bottom: 0;
-            width: 1px; background: rgba(var(--slider-color), 0.2);
-            z-index: 50; cursor: col-resize; touch-action: none;
+            position: absolute;
+            left: 50%; top: 0; bottom: 0;
+            width: 0px; 
+            z-index: 10;
+            cursor: ew-resize;
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* The Draggable Pill like the video */
-        .drag-pill {
-            width: 6px; height: 70px; background: var(--slider-color);
-            border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.5);
-            transition: transform 0.2s ease, width 0.2s ease;
+        /* Gambar Pegangan Slider */
+        .gojo-handle {
+            width: 45px; height: 45px;
+            border-radius: 50%;
+            background-image: url('https://i.pinimg.com/736x/87/40/a0/8740a0499e900c144fb6b00ec5961e93.jpg'); /* FOTO GOJO (Bisa lu ganti linknya) */
+            background-size: cover;
+            background-position: center;
+            border: 3px solid #fff;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            transition: transform 0.2s;
         }
+        .divider:active .gojo-handle { transform: scale(1.1); }
 
-        .divider:hover .drag-pill, .divider:active .drag-pill {
-            transform: scaleX(1.3); width: 8px;
-        }
+        /* --- STYLING KONTEN --- */
+        .panel-title { font-size: 28px; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+        .title-survival::before { content: ''; width: 5px; height: 28px; background: #ff4d4d; border-radius: 3px; }
+        .title-commander::before { content: ''; width: 5px; height: 28px; background: #1fffc1; border-radius: 3px; }
 
-        /* PANEL CONTENT STYLING */
-        .panel-header {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 25px;
-        }
+        .input-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; }
+        
+        /* Input Field (Hitam/Putih menyesuaikan) */
+        .panel-left input { background: #1a1a1e; border: 1px solid #333; color: #fff; padding: 15px; border-radius: 12px; font-size: 14px; outline: none; }
+        .panel-right input { background: #e5e7eb; border: 1px solid #d1d5db; color: #000; padding: 15px; border-radius: 12px; font-size: 14px; outline: none; }
 
-        .panel-title {
-            font-size: 24px; font-weight: 800; letter-spacing: -1px;
-            display: flex; align-items: center; gap: 8px;
-        }
+        .btn-add { padding: 14px; border-radius: 12px; border: none; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 12px; }
+        .btn-survival { background: #ff4d4d; color: #fff; }
+        .btn-commander { background: #0d9488; color: #fff; } /* Teal gelap biar kontras di putih */
 
-        .panel-survival .panel-title::before { content: ''; display: inline-block; width: 5px; height: 24px; background: var(--accent-survival); border-radius: 3px; }
-        .panel-commander .panel-title::before { content: ''; display: inline-block; width: 5px; height: 24px; background: var(--accent-commander); border-radius: 3px; }
-
-        .sub-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
-
-        /* INPUT AREA (Dimana idenya kampang - DISINI!) */
-        .input-group {
-            display: flex; flex-direction: column; gap: 8px;
-            margin-bottom: 20px;
-        }
-
-        input[type="text"] {
-            width: 100%; background-color: var(--input-bg);
-            border: 1px solid var(--border-color); color: var(--text-main);
-            padding: 14px; border-radius: 12px; font-size: 14px; outline: none;
-        }
-
-        .btn-add {
-            width: 100%; padding: 12px; border-radius: 12px;
-            border: none; color: #fff; font-weight: 700;
-            cursor: pointer; text-transform: uppercase; font-size: 12px;
-            transition: filter 0.2s ease;
-        }
-
-        .panel-survival .btn-add { background-color: var(--accent-survival); }
-        .panel-commander .btn-add { background-color: var(--accent-commander); }
-        .btn-add:active { filter: brightness(0.9); }
-
-        /* MINIMALIST TASK CARDS */
+        /* Task Cards */
         .task-list { list-style: none; }
-        
-        .task-card {
-            background-color: var(--card-bg); border: 1px solid var(--border-color);
-            border-radius: 16px; padding: 18px; margin-bottom: 12px;
-            display: flex; align-items: flex-start; justify-content: space-between;
-            gap: 10px; transition: transform 0.2s ease;
+        .task-card { 
+            border-radius: 16px; padding: 18px; margin-bottom: 12px; 
+            display: flex; justify-content: space-between; align-items: flex-start;
         }
+        .panel-left .task-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+        .panel-right .task-card { background: #fff; border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         
-        .task-card:active { transform: scale(0.98); }
+        .task-text { font-size: 14px; font-weight: 600; margin-bottom: 5px; line-height: 1.4; }
+        .task-date { font-size: 11px; opacity: 0.6; }
+        
+        .btn-check { background: transparent; border: 2px solid; width: 24px; height: 24px; border-radius: 6px; cursor: pointer; color: transparent; }
+        .panel-left .btn-check { border-color: rgba(255,255,255,0.3); }
+        .panel-right .btn-check { border-color: rgba(0,0,0,0.2); }
 
-        .task-content { flex: 1; }
-        .task-text { font-size: 14px; font-weight: 600; line-height: 1.4; margin-bottom: 4px; }
-        .task-date { font-size: 11px; color: var(--text-muted); }
-
-        .btn-check {
-            background: transparent; border: 2px solid var(--border-color);
-            width: 22px; height: 22px; border-radius: 6px; cursor: pointer;
-            color: transparent; display: flex; align-items: center; justify-content: center;
-        }
-
-        .panel-survival .task-card .btn-check:active { border-color: var(--accent-survival); color: var(--accent-survival); }
-        .panel-commander .task-card .btn-check:active { border-color: var(--accent-commander); color: var(--accent-commander); }
-
-        /* BOTTOM TAB BAR (Kocag Tuh kayak Digambar) */
+        /* --- BOTTOM TAB BAR --- */
         .tab-bar {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 65px;
             display: flex; align-items: center; justify-content: space-around;
-            padding: 0 20px; border-top: 1px solid var(--border-color);
-            background: var(--tab-bar-bg); backdrop-filter: blur(5px);
-            z-index: 100;
+            background: #111113; /* Netral gelap */
+            border-top: 1px solid #222; z-index: 100;
         }
-
         .tab-item {
-            background: transparent; border: none; color: var(--text-muted);
-            font-size: 11px; font-weight: 600; display: flex;
-            flex-direction: column; align-items: center; gap: 4px;
-            cursor: pointer; text-transform: uppercase;
+            background: transparent; border: none; color: #6b7280;
+            font-size: 10px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; text-transform: uppercase;
         }
+        .tab-item.active { color: #fff; }
+        .icon { width: 22px; height: 22px; fill: currentColor; }
 
-        /* Minimal Icons from Video */
-        .icon { width: 18px; height: 18px; fill: currentColor; }
-
-        .tab-item.active { color: var(--text-main); }
-        .panel-survival .tab-item.active { color: var(--accent-survival); }
-        .panel-commander .tab-item.active { color: var(--accent-commander); }
-
-        /* VIEW MODES (Hide panels based on active tab) */
-        .view-main .split-container { display: flex; }
-        .view-board .split-container, .view-history .split-container { display: none; }
+        /* --- OTHER VIEWS (BOARD & HISTORY) --- */
+        .view-main .split-wrapper { display: block; }
+        .view-board .split-wrapper, .view-history .split-wrapper { display: none; }
         
-        .other-views { display: none; padding: 50px 15px 60px 15px; overflow-y: auto; height: 100vh; width: 100vw;}
+        .other-views { display: none; padding: 30px 20px; height: calc(100vh - 65px); overflow-y: auto; background: #050505; color: #fff; }
         .view-board .board-area, .view-history .history-area { display: block; }
 
-        /* BRAINSTORM BOARD GRID (v45) */
-        .board-area h1, .history-area h1 { margin-bottom: 20px; font-size: 24px; font-weight: 800;}
-        
-        .board-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 15px;
-        }
+        .other-views h1 { font-size: 28px; font-weight: 800; margin-bottom: 20px; }
 
+        /* UPGRADED BOARD GRID */
+        .board-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
         .board-card {
-            background-color: var(--card-bg); border: 1px solid var(--border-color);
-            border-radius: 12px; padding: 15px; height: 140px;
-            display: flex; flex-direction: column; justify-content: space-between;
+            background: #1a1a1e; border: 1px solid #333; border-radius: 16px;
+            padding: 18px; display: flex; flex-direction: column; justify-content: space-between; min-height: 140px;
         }
-        
-        .board-text { font-size: 13px; font-weight: 600; line-height: 1.4; color: var(--text-main);
-                      overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical;}
-        
-        .board-tag { font-size: 10px; color: #fff; padding: 3px 6px; border-radius: 4px; font-weight: 700;}
-        .tag-creative { background-color: #3b82f6;}
-        .tag-tech { background-color: var(--accent-commander);}
-
+        .board-text { font-size: 13px; font-weight: 600; line-height: 1.5; margin-bottom: 15px;}
+        .board-footer { display: flex; justify-content: space-between; align-items: center; }
+        .board-tag { font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; }
+        .tag-survival { background: rgba(255, 77, 77, 0.2); color: #ff4d4d; }
+        .tag-commander { background: rgba(31, 255, 193, 0.2); color: #1fffc1; }
     </style>
 </head>
 <body class="view-main">
 
-    <header>
-        <h1>COMMAND CENTER</h1>
-        <div class="header-actions">
-            <button class="theme-toggle" onclick="toggleTheme()">DARK</button>
-            <span class="sub-label">ENTJ</span>
-        </div>
-    </header>
-
-    <div class="split-container" id="split-container">
+    <div class="split-wrapper" id="split-wrapper">
         
-        <div class="panel panel-survival" id="panel-left">
-            <div class="panel-header">
-                <h2 class="panel-title">Survival</h2>
-                <span class="sub-label">Notes</span>
+        <div class="panel-right">
+            <div class="inner-content">
+                <div class="content-commander">
+                    <h2 class="panel-title title-commander">Commander</h2>
+                    <div class="input-group">
+                        <input type="text" id="commander-input" placeholder="Ide liar buat Markaz/Web?">
+                        <button class="btn-add btn-commander" onclick="addNote('commander')">Simpan Ide</button>
+                    </div>
+                    <ul class="task-list" id="commander-list"></ul>
+                </div>
             </div>
+        </div>
 
-            <div class="input-group">
-                <input type="text" id="survival-input" placeholder="Apa darurat minggu ini, Komandan?">
-                <button class="btn-add" onclick="addNote('survival')">Tambah Prioritas</button>
+        <div class="panel-left" id="panel-left">
+            <div class="inner-content">
+                <div class="content-survival">
+                    <h2 class="panel-title title-survival">Survival</h2>
+                    <div class="input-group">
+                        <input type="text" id="survival-input" placeholder="Apa darurat minggu ini?">
+                        <button class="btn-add btn-survival" onclick="addNote('survival')">Tambah Prioritas</button>
+                    </div>
+                    <ul class="task-list" id="survival-list"></ul>
+                </div>
             </div>
-
-            <ul class="task-list" id="survival-list">
-                </ul>
         </div>
 
         <div class="divider" id="drag-divider">
-            <div class="drag-pill"></div>
-        </div>
-
-        <div class="panel panel-commander" id="panel-right">
-            <div class="panel-header">
-                <h2 class="panel-title">Commander</h2>
-                <span class="sub-label">Ide / Web</span>
-            </div>
-
-            <div class="input-group">
-                <input type="text" id="commander-input" placeholder="Ide liar buat Markaz/Web?">
-                <button class="btn-add" onclick="addNote('commander')">Simpan Ide</button>
-            </div>
-
-            <ul class="task-list" id="commander-list">
-                </ul>
+            <div class="gojo-handle"></div>
         </div>
 
     </div>
 
     <div class="other-views board-area">
         <h1>Brainstorm Board</h1>
-        <div class="board-grid" id="board-grid">
-            </div>
+        <div class="board-grid" id="board-grid"></div>
     </div>
 
     <div class="other-views history-area">
         <h1>Log History</h1>
-        <ul class="task-list" id="history-list">
-            </ul>
+        <ul class="task-list" id="history-list"></ul>
     </div>
 
     <div class="tab-bar">
@@ -312,58 +229,34 @@
     </div>
 
     <script>
-        // --- DATA & STATE ---
-        let currentTheme = localStorage.getItem('entj_theme') || 'dark';
-        let tasks = JSON.parse(localStorage.getItem('entj_tasks_v2')) || [
-            { id: 1, type: 'survival', text: 'Ujian lusa! Fokus ngerjain ringkasan materi sore ini.', date: '20 Jun 2026' },
-            { id: 2, type: 'commander', text: 'Ide: Buat template visual konten markaz biar tim media ga bingung.', date: '20 Jun 2026' }
+        // DATA STATE
+        let tasks = JSON.parse(localStorage.getItem('entj_v3')) || [
+            { id: 1, type: 'survival', text: 'Ujian lusa! Review materi.', date: '20 Jun 2026' },
+            { id: 2, type: 'commander', text: 'Ide: Template visual markaz.', date: '20 Jun 2026' }
         ];
 
-        const container = document.getElementById('split-container');
+        // SPLIT SCREEN DRAG LOGIC
         const divider = document.getElementById('drag-divider');
         const leftPanel = document.getElementById('panel-left');
-        const rightPanel = document.getElementById('panel-right');
-        const body = document.body;
-
-        // --- THEME & INIT ---
-        function toggleTheme() {
-            currentTheme = (currentTheme === 'dark' ? 'light' : 'dark');
-            body.classList.toggle('light-theme', currentTheme === 'light');
-            document.querySelector('.theme-toggle').innerText = currentTheme.toUpperCase();
-            localStorage.setItem('entj_theme', currentTheme);
-        }
-
-        if (currentTheme === 'light') toggleTheme(); // Set initial theme
-
-        // --- SPLIT SCREEN LOGIC (Smoother, Gap Fixed) ---
+        const wrapper = document.getElementById('split-wrapper');
         let isDragging = false;
-        let startPercent = 50; // Initial
 
-        const startDrag = (e) => { isDragging = true; body.style.cursor = 'ew-resize'; };
-        const stopDrag = () => { isDragging = false; body.style.cursor = 'default'; };
+        const startDrag = () => { isDragging = true; };
+        const stopDrag = () => { isDragging = false; };
         
         const drag = (e) => {
             if (!isDragging) return;
-            
             let clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-            let percent = (clientX / container.offsetWidth) * 100;
+            let percent = (clientX / wrapper.offsetWidth) * 100;
 
-            // Boundaries for full screen without gap
+            // Batas drag biar gak hilang keluar layar
             if (percent < 0) percent = 0;
             if (percent > 100) percent = 100;
 
-            // Applying sizes directly to width/left for smooth, no-gap feel
             leftPanel.style.width = `${percent}%`;
             divider.style.left = `${percent}%`;
-            
-            // Adjust content padding based on split percentage (satisfying visual)
-            let creativeOpacity = Math.max(0.2, (percent - 20) / 30);
-            let techOpacity = Math.max(0.2, (100 - percent - 20) / 30);
-            leftPanel.style.opacity = creativeOpacity;
-            rightPanel.style.opacity = techOpacity;
         };
 
-        // Event Listeners for Split Screen
         divider.addEventListener('mousedown', startDrag);
         document.addEventListener('mousemove', drag);
         document.addEventListener('mouseup', stopDrag);
@@ -371,86 +264,67 @@
         document.addEventListener('touchmove', drag);
         document.addEventListener('touchend', stopDrag);
 
-        // --- BOTTOM TAB NAVIGATION ---
+        // NAVIGATION
         function switchView(view, tabEl) {
-            body.className = `view-${view}`;
-            if (currentTheme === 'light') body.classList.add('light-theme');
-            
-            // Set Active Tab
+            document.body.className = `view-${view}`;
             document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
             tabEl.classList.add('active');
-            
             renderData();
         }
 
-        // --- DATA INTERACTION (CRUD) ---
+        // CRUD
         function addNote(type) {
             const inputEl = document.getElementById(`${type}-input`);
             const text = inputEl.value.trim();
             if (!text) return;
 
             const dateStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-            
             tasks.push({ id: Date.now(), type, text, date: dateStr });
             inputEl.value = '';
             
-            saveData();
+            localStorage.setItem('entj_v3', JSON.stringify(tasks));
             renderData();
         }
 
         function checkTask(id) {
             tasks = tasks.filter(t => t.id !== id);
-            saveData();
+            localStorage.setItem('entj_v3', JSON.stringify(tasks));
             renderData();
         }
 
-        function saveData() {
-            localStorage.setItem('entj_tasks_v2', JSON.stringify(tasks));
-        }
-
-        // --- RENDER FUNCTIONS ---
+        // RENDER UI
         function renderData() {
-            const survivalList = document.getElementById('survival-list');
-            const commanderList = document.getElementById('commander-list');
-            const boardGrid = document.getElementById('board-grid');
-            const historyList = document.getElementById('history-list');
+            const listSurv = document.getElementById('survival-list');
+            const listCmd = document.getElementById('commander-list');
+            const gridBoard = document.getElementById('board-grid');
+            const listHist = document.getElementById('history-list');
 
-            // Clear Views
-            survivalList.innerHTML = '';
-            commanderList.innerHTML = '';
-            boardGrid.innerHTML = '';
-            historyList.innerHTML = '';
+            listSurv.innerHTML = ''; listCmd.innerHTML = ''; gridBoard.innerHTML = ''; listHist.innerHTML = '';
 
             tasks.forEach(task => {
                 const cardHtml = `
                     <li class="task-card">
-                        <div class="task-content">
+                        <div>
                             <p class="task-text">${task.text}</p>
                             <span class="task-date">${task.date}</span>
                         </div>
                         <button class="btn-check" onclick="checkTask(${task.id})">✓</button>
                     </li>`;
 
-                // Render in Split Panels
-                if (task.type === 'survival') survivalList.innerHTML += cardHtml;
-                if (task.type === 'commander') commanderList.innerHTML += cardHtml;
+                if (task.type === 'survival') listSurv.innerHTML += cardHtml;
+                if (task.type === 'commander') listCmd.innerHTML += cardHtml;
+                listHist.innerHTML += cardHtml;
 
-                // Render in Board Grid (Creative vs Tech)
-                const boardTag = task.type === 'survival' ? '<span class="board-tag tag-creative">Creative</span>' : '<span class="board-tag tag-tech">Tech</span>';
-                boardGrid.innerHTML += `
+                const tag = task.type === 'survival' ? '<span class="board-tag tag-survival">Urgent</span>' : '<span class="board-tag tag-commander">Idea</span>';
+                gridBoard.innerHTML += `
                     <div class="board-card">
                         <p class="board-text">${task.text}</p>
-                        ${boardTag}
+                        <div class="board-footer">${tag}</div>
                     </div>`;
-                    
-                // Render in History (v50)
-                historyList.innerHTML += cardHtml;
             });
         }
 
-        // INIT
         renderData();
-
     </script>
 </body>
 </html>
