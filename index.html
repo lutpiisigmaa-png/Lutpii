@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-   <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="manifest.json">
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js');
@@ -29,14 +29,14 @@
             position: relative; width: 100vw; height: 100vh;
         }
 
-        /* LAYER BAWAH: SURVIVAL */
+        /* LAYER BAWAH: SURVIVAL / REALITY */
         .layer-back {
             position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
             background: linear-gradient(135deg, #050505 0%, #0a1128 100%);
             color: #fff;
         }
 
-        /* LAYER ATAS: COMMANDER */
+        /* LAYER ATAS: COMMANDER / LIMITLESS */
         .layer-front {
             position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
             background: linear-gradient(135deg, #ffffff 0%, #e0e5ec 100%);
@@ -64,19 +64,19 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-    /* ICON GOJO FULL BODY (BEBAS DARI LINGKARAN) */
+        /* ICON GOJO FULL BODY (BEBAS DARI LINGKARAN) */
         .custom-handle {
             flex-shrink: 0; 
-            width: 85px; height: 85px; /* Gua gedein dikit biar Chibi-nya jelas */
-            background-image: url('./gojo.png'); /* Tetap pake file PNG lu */
-            background-size: contain; /* KUNCI BIAR FULL BODY GAK KEPOTONG */
+            width: 85px; height: 85px; 
+            background-image: url('./gojo.png'); 
+            background-size: contain; 
             background-repeat: no-repeat;
             background-position: center;
-            background-color: transparent; /* Pastiin gak ada warna latar */
+            background-color: transparent; 
             border: none;
-            border-radius: 0; /* MUSNAHKAN KUTUKAN LINGKARAN */
-            box-shadow: none; /* Hapus bayangan bulat/kotak */
-            filter: drop-shadow(0 8px 10px rgba(0,0,0,0.6)); /* Bayangan ngikutin bentuk badan Gojo */
+            border-radius: 0; 
+            box-shadow: none; 
+            filter: drop-shadow(0 8px 10px rgba(0,0,0,0.6)); 
             will-change: transform; 
         }
 
@@ -136,7 +136,7 @@
         .board-card { border-radius: 20px; padding: 20px; min-height: 150px; display: flex; flex-direction: column; justify-content: space-between; }
         .board-tag { font-size: 10px; font-weight: 800; padding: 6px 10px; border-radius: 8px; text-transform: uppercase; width: max-content;}
 
-       /* WARNA KARTU BOARD & HISTORY */
+        /* WARNA KARTU BOARD & HISTORY (UDAH DI-FIX) */
         .card-reality {
             background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
             border: 1px solid rgba(59, 130, 246, 0.4); box-shadow: 0 4px 10px rgba(0,0,0,0.3); color: #fff;
@@ -213,7 +213,6 @@
     </div>
 
     <script>
-        // PAKAI DATABASE BARU BIAR GAK CRASH SAMA YANG LAMA
         let tasks = [];
         try {
             tasks = JSON.parse(localStorage.getItem('entj_v8_final')) || [];
@@ -317,9 +316,10 @@
                 if (task.type === 'dark') darkList.innerHTML += cardMain;
                 if (task.type === 'light') lightList.innerHTML += cardMain;
 
+                // NAMA CLASS DAN TAG UDAH BENER SEMUA DI SINI
                 const themeClass = task.type === 'dark' ? 'card-reality' : 'card-limitless';
                 const tagText = task.type === 'dark' ? 'REALITY' : 'LIMITLESS';
-                
+
                 histList.innerHTML += `
                     <li class="task-card ${themeClass}">
                         <div><span class="task-text">${task.text}</span><span class="task-date">${task.date}</span></div>
@@ -334,7 +334,6 @@
             });
         }
         
-        // Panggil renderData pas pertama buka
         renderData();
     </script>
 </body>
