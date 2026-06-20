@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gojo Glass Center V8</title>
+   <link rel="manifest" href="manifest.json">
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+   
+    <title>Limitlees</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
 
@@ -134,19 +141,19 @@
             background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
             border: 1px solid rgba(59, 130, 246, 0.4); box-shadow: 0 4px 10px rgba(0,0,0,0.3); color: #fff;
         }
-        .card-survival .task-text { color: #fff; }
-        .card-survival .task-date { color: rgba(255,255,255,0.7); }
-        .card-survival .btn-check { border-color: rgba(255,255,255,0.4); }
-        .card-survival .board-tag { background: #3b82f6; color: #fff; }
+        .card-reality .task-text { color: #fff; }
+        .card-reality .task-date { color: rgba(255,255,255,0.7); }
+        .card-reality .btn-check { border-color: rgba(255,255,255,0.4); }
+        .card-reality .board-tag { background: #3b82f6; color: #fff; }
 
         .card-commander {
             background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
             border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 4px 10px rgba(0,0,0,0.05); color: #111;
         }
-        .card-commander .task-text { color: #111; }
-        .card-commander .task-date { color: rgba(0,0,0,0.5); }
-        .card-commander .btn-check { border-color: rgba(0,0,0,0.3); }
-        .card-commander .board-tag { background: #111; color: #fff; }
+        .card-limitlees .task-text { color: #111; }
+        .card-limitlees .task-date { color: rgba(0,0,0,0.5); }
+        .card-limitlees .btn-check { border-color: rgba(0,0,0,0.3); }
+        .card-limitlees .board-tag { background: #111; color: #fff; }
     </style>
 </head>
 <body>
@@ -155,7 +162,7 @@
         <div class="layer-back">
             <div class="content-wrapper">
                 <div class="side-left" id="content-dark">
-                    <h2>Survival</h2>
+                    <h2>Reality</h2>
                     <input type="text" id="dark-input" class="input-box" placeholder="Urusan darurat?">
                     <button class="btn-submit" onclick="addNote('dark')">Tambah</button>
                     <ul class="task-list" id="dark-list"></ul>
@@ -167,7 +174,7 @@
             <div class="content-wrapper">
                 <div class="side-left"></div>
                 <div class="side-right" id="content-light">
-                    <h2>Commander</h2>
+                    <h2>Limitlees</h2>
                     <input type="text" id="light-input" class="input-box" placeholder="Ide brilian?">
                     <button class="btn-submit" onclick="addNote('light')">Simpan</button>
                     <ul class="task-list" id="light-list"></ul>
@@ -310,8 +317,8 @@
                 if (task.type === 'dark') darkList.innerHTML += cardMain;
                 if (task.type === 'light') lightList.innerHTML += cardMain;
 
-                const themeClass = task.type === 'dark' ? 'card-survival' : 'card-commander';
-                const tagText = task.type === 'dark' ? 'SURVIVAL' : 'COMMANDER';
+                const themeClass = task.type === 'dark' ? 'card-reality' : 'card-limitlees';
+                const tagText = task.type === 'dark' ? 'REALITY' : 'LIMITLEES';
 
                 histList.innerHTML += `
                     <li class="task-card ${themeClass}">
