@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gojo Glass Center V5</title>
+    <title>Gojo Glass Center V6</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
 
@@ -60,16 +60,14 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* INI CLASS BUAT GANTI GAMBAR TENGAH */
+        /* ICON GOJO */
         .custom-handle {
             width: 48px; height: 48px; border-radius: 50%;
-            /* GANTI LINK DI BAWAH INI SAMA LINK GAMBAR LU */
-            background-image: url('gojo.png'); 
+            background-image: url('gojo.png'); /* PASTIKAN FILE gojo.png ADA DI FOLDER YANG SAMA */
             background-size: cover; background-position: center;
             border: 3px solid #fff; box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-            transition: transform 0.2s ease-out;
+            will-change: transform; /* Dihandle full lewat JS biar muternya mantap */
         }
-        .slider:active .custom-handle { transform: scale(1.15); }
 
         /* --- STYLING UI --- */
         h2 { font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; }
@@ -158,7 +156,7 @@
         </div>
 
         <div class="slider" id="drag-slider">
-            <div class="custom-handle"></div>
+            <div class="custom-handle" id="gojo-icon"></div>
         </div>
     </div>
 
@@ -185,38 +183,54 @@
     </div>
 
     <script>
-        let tasks = JSON.parse(localStorage.getItem('entj_v5')) || [
+        let tasks = JSON.parse(localStorage.getItem('entj_v6')) || [
             { id: 1, type: 'dark', text: 'Ujian lusa! Review total.', date: '20 Jun 2026' },
             { id: 2, type: 'light', text: 'Template web markaz baru.', date: '20 Jun 2026' }
         ];
 
-        // LOGIC ANIMASI IKUT GESER (PARALLAX)
+        // LOGIC PARALLAX PERFECT CENTER & ROTASI GOJO
         const slider = document.getElementById('drag-slider');
         const layerFront = document.getElementById('layer-front');
         const contentLight = document.getElementById('content-light');
         const contentDark = document.getElementById('content-dark');
+        const gojoIcon = document.getElementById('gojo-icon');
         const appContainer = document.querySelector('.app-container');
+        
         let isDragging = false;
+        let currentPercent = 50;
 
-        const startDrag = () => { isDragging = true; };
-        const stopDrag = () => { isDragging = false; };
+        const updateUI = (percent, activeDrag = false) => {
+            slider.style.left = `${percent}%`;
+            layerFront.style.clipPath = `inset(0 0 0 ${percent}%)`;
+            
+            // Rumus centering sempurna: (percent - 50) / 2
+            const offset = (percent - 50) / 2;
+            contentLight.style.transform = `translateX(${offset}vw)`;
+            contentDark.style.transform = `translateX(${offset}vw)`;
+
+            // Animasi rotasi Gojo + efek membesar pas dipegang
+            const scale = activeDrag ? 1.15 : 1;
+            const rotation = (percent - 50) * 4; // Berputar dinamis sesuai jarak ditarik
+            gojoIcon.style.transform = `scale(${scale}) rotate(${rotation}deg)`;
+        };
+
+        const startDrag = () => { isDragging = true; updateUI(currentPercent, true); };
+        const stopDrag = () => { isDragging = false; updateUI(currentPercent, false); };
         
         const drag = (e) => {
             if (!isDragging) return;
             let clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-            let percent = (clientX / appContainer.offsetWidth) * 100;
-            if (percent < 0) percent = 0; if (percent > 100) percent = 100;
+            currentPercent = (clientX / appContainer.offsetWidth) * 100;
+            if (currentPercent < 0) currentPercent = 0; if (currentPercent > 100) currentPercent = 100;
 
-            slider.style.left = `${percent}%`;
-            layerFront.style.clipPath = `inset(0 0 0 ${percent}%)`;
-            
-            // INI KUNCI ANIMASINYA! Konten kedorong sesuai tarikan lu
-            contentLight.style.transform = `translateX(${(percent - 50) * 0.7}vw)`;
-            contentDark.style.transform = `translateX(${(percent - 50) * 0.3}vw)`;
+            updateUI(currentPercent, true);
         };
 
         slider.addEventListener('mousedown', startDrag); document.addEventListener('mousemove', drag); document.addEventListener('mouseup', stopDrag);
         slider.addEventListener('touchstart', startDrag); document.addEventListener('touchmove', drag); document.addEventListener('touchend', stopDrag);
+
+        // Inisiasi awal posisi 50%
+        updateUI(50, false);
 
         function switchTab(viewId, btn) {
             document.querySelectorAll('.dock-item').forEach(el => el.classList.remove('active'));
@@ -234,11 +248,11 @@
             const text = inputEl.value.trim();
             if (!text) return;
             tasks.unshift({ id: Date.now(), type, text, date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) });
-            inputEl.value = ''; localStorage.setItem('entj_v5', JSON.stringify(tasks)); renderData();
+            inputEl.value = ''; localStorage.setItem('entj_v6', JSON.stringify(tasks)); renderData();
         }
 
         function checkTask(id) {
-            tasks = tasks.filter(t => t.id !== id); localStorage.setItem('entj_v5', JSON.stringify(tasks)); renderData();
+            tasks = tasks.filter(t => t.id !== id); localStorage.setItem('entj_v6', JSON.stringify(tasks)); renderData();
         }
 
         function renderData() {
