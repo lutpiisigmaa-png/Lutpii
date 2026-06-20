@@ -3,242 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gojo Split Center</title>
+    <title>Gojo Glass Center</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
 
         * {
             margin: 0; padding: 0; box-sizing: border-box;
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
         body {
             height: 100vh; width: 100vw;
-            overflow: hidden; 
-            background: #000; /* Dasar fallback */
-        }
-
-        /* --- THE REAL SPLIT SCREEN MAGIC --- */
-        .split-wrapper {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100vw; 
-            height: calc(100vh - 65px); /* Sisa buat bottom bar */
             overflow: hidden;
+            background: #000;
         }
 
-        /* RIGHT PANEL (WHITE MODE - COMMANDER) */
-        /* Berada di layer bawah, ukurannya fix 100vw (Full Screen) */
-        .panel-right {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100vw; height: 100%;
-            background: #f7f7f9;
-            color: #111113;
-            z-index: 1;
+        /* --- THE REAL REVEAL MAGIC (CLIP-PATH) --- */
+        .app-container {
+            position: relative;
+            width: 100vw; height: 100vh;
         }
 
-        /* LEFT PANEL (BLACK MODE - SURVIVAL) */
-        /* Berada di layer atas, ukurannya berubah-ubah pake persentase */
-        .panel-left {
-            position: absolute;
-            top: 0; left: 0;
-            width: 50%; /* Default awal */
-            height: 100%;
-            background: #050505;
-            color: #fcfcfc;
-            z-index: 2;
-            overflow: hidden; /* Motong konten inner yang kelebihan */
-            border-right: 2px solid rgba(255, 255, 255, 0.1);
+        /* LAYER BAWAH: SURVIVAL (DARK / BLUE) */
+        .layer-back {
+            position: absolute; top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: linear-gradient(135deg, #050505 0%, #0a1128 100%);
+            color: #fff;
         }
 
-        /* INNER CONTENT WRAPPER */
-        /* Ini kunci biar konten GAK KEGENCET. Fix 100vw! */
-        .inner-content {
-            width: 100vw;
-            height: 100%;
-            padding: 30px 20px;
-            overflow-y: auto;
-            /* Layouting dalam panel */
-            display: grid;
-            grid-template-columns: 50vw 50vw;
+        /* LAYER ATAS: COMMANDER (LIGHT / WHITE) */
+        /* Ini yang bakal dipotong sama clip-path biar keliatan transparan/disapu */
+        .layer-front {
+            position: absolute; top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: linear-gradient(135deg, #ffffff 0%, #e0e5ec 100%);
+            color: #111;
+            clip-path: inset(0 0 0 50%); /* Dipotong setengah dari kiri */
+            will-change: clip-path; /* Biar animasi render-nya mulus */
         }
 
-        /* Khusus buat penempatan konten di kanan */
-        .content-commander {
-            grid-column: 2;
-            padding-right: 20px;
-            padding-left: 20px;
+        /* INNER CONTENT (Fix 100vw, GAK BAKAL MENCiut) */
+        .content-wrapper {
+            position: absolute; top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            display: flex;
+            padding: 40px 20px 100px 20px; /* Bawah dikasi space buat dock */
         }
 
-        .content-survival {
-            grid-column: 1;
-            padding-right: 20px;
-        }
+        /* Bagi dua layout statis */
+        .side-left { width: 50vw; padding-right: 20px; }
+        .side-right { width: 50vw; padding-left: 20px; }
 
-        /* --- SLIDER GOJO --- */
-        .divider {
-            position: absolute;
-            left: 50%; top: 0; bottom: 0;
-            width: 0px; 
-            z-index: 10;
-            cursor: ew-resize;
+        /* --- THE SLIDER (GOJO) --- */
+        .slider {
+            position: absolute; top: 0; bottom: 0; left: 50%;
+            width: 4px; background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            z-index: 50; cursor: ew-resize;
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* Gambar Pegangan Slider */
         .gojo-handle {
-            width: 45px; height: 45px;
+            width: 48px; height: 48px;
             border-radius: 50%;
-            background-image: url('https://i.pinimg.com/736x/87/40/a0/8740a0499e900c144fb6b00ec5961e93.jpg'); /* FOTO GOJO (Bisa lu ganti linknya) */
-            background-size: cover;
-            background-position: center;
+            background-image: url('https://i.pinimg.com/736x/87/40/a0/8740a0499e900c144fb6b00ec5961e93.jpg');
+            background-size: cover; background-position: center;
             border: 3px solid #fff;
-            box-shadow: 0 0 15px rgba(0,0,0,0.5);
-            transition: transform 0.2s;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .divider:active .gojo-handle { transform: scale(1.1); }
+        .slider:active .gojo-handle { transform: scale(1.15) rotate(5deg); }
 
-        /* --- STYLING KONTEN --- */
-        .panel-title { font-size: 28px; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
-        .title-survival::before { content: ''; width: 5px; height: 28px; background: #ff4d4d; border-radius: 3px; }
-        .title-commander::before { content: ''; width: 5px; height: 28px; background: #1fffc1; border-radius: 3px; }
-
-        .input-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; }
+        /* --- GLASSMORPHISM UI --- */
+        h2 { font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; }
         
-        /* Input Field (Hitam/Putih menyesuaikan) */
-        .panel-left input { background: #1a1a1e; border: 1px solid #333; color: #fff; padding: 15px; border-radius: 12px; font-size: 14px; outline: none; }
-        .panel-right input { background: #e5e7eb; border: 1px solid #d1d5db; color: #000; padding: 15px; border-radius: 12px; font-size: 14px; outline: none; }
+        .layer-back h2 { color: #fff; }
+        .layer-back h2::before { content: ''; width: 6px; height: 32px; background: #3b82f6; border-radius: 4px; } /* Accent Blue */
+        
+        .layer-front h2 { color: #111; }
+        .layer-front h2::before { content: ''; width: 6px; height: 32px; background: #111; border-radius: 4px; }
 
-        .btn-add { padding: 14px; border-radius: 12px; border: none; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 12px; }
-        .btn-survival { background: #ff4d4d; color: #fff; }
-        .btn-commander { background: #0d9488; color: #fff; } /* Teal gelap biar kontras di putih */
+        .input-box {
+            width: 100%; padding: 16px; border-radius: 16px; font-size: 14px;
+            outline: none; margin-bottom: 10px; transition: all 0.3s;
+        }
+        .layer-back .input-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; backdrop-filter: blur(10px); }
+        .layer-back .input-box:focus { border-color: #3b82f6; background: rgba(255,255,255,0.1); }
+        
+        .layer-front .input-box { background: rgba(255,255,255,0.6); border: 1px solid rgba(0,0,0,0.1); color: #000; backdrop-filter: blur(10px); }
+        .layer-front .input-box:focus { border-color: #111; background: #fff; }
 
-        /* Task Cards */
+        .btn-submit {
+            width: 100%; padding: 14px; border-radius: 14px; font-weight: 800; text-transform: uppercase;
+            border: none; cursor: pointer; transition: transform 0.2s, opacity 0.2s; margin-bottom: 25px;
+        }
+        .btn-submit:active { transform: scale(0.97); }
+        .layer-back .btn-submit { background: #3b82f6; color: #fff; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
+        .layer-front .btn-submit { background: #111; color: #fff; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
+
+        /* TASK CARDS DENGAN ANIMASI */
         .task-list { list-style: none; }
-        .task-card { 
-            border-radius: 16px; padding: 18px; margin-bottom: 12px; 
-            display: flex; justify-content: space-between; align-items: flex-start;
+        .task-card {
+            padding: 18px; border-radius: 16px; margin-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+            animation: fadeIn 0.4s ease-out forwards;
+            backdrop-filter: blur(10px);
         }
-        .panel-left .task-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
-        .panel-right .task-card { background: #fff; border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         
-        .task-text { font-size: 14px; font-weight: 600; margin-bottom: 5px; line-height: 1.4; }
-        .task-date { font-size: 11px; opacity: 0.6; }
-        
-        .btn-check { background: transparent; border: 2px solid; width: 24px; height: 24px; border-radius: 6px; cursor: pointer; color: transparent; }
-        .panel-left .btn-check { border-color: rgba(255,255,255,0.3); }
-        .panel-right .btn-check { border-color: rgba(0,0,0,0.2); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- BOTTOM TAB BAR --- */
-        .tab-bar {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 65px;
-            display: flex; align-items: center; justify-content: space-around;
-            background: #111113; /* Netral gelap */
-            border-top: 1px solid #222; z-index: 100;
+        .layer-back .task-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); }
+        .layer-back .task-card:hover { background: rgba(255,255,255,0.08); }
+        
+        .layer-front .task-card { background: rgba(255,255,255,0.5); border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+        .layer-front .task-card:hover { background: #fff; }
+
+        .task-text { font-size: 14px; font-weight: 600; }
+        .task-date { font-size: 11px; opacity: 0.6; margin-top: 4px; display: block; }
+        
+        .btn-check {
+            width: 28px; height: 28px; border-radius: 8px; border: 2px solid; background: transparent;
+            cursor: pointer; transition: all 0.2s;
         }
-        .tab-item {
-            background: transparent; border: none; color: #6b7280;
-            font-size: 10px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; text-transform: uppercase;
-        }
-        .tab-item.active { color: #fff; }
-        .icon { width: 22px; height: 22px; fill: currentColor; }
-
-        /* --- OTHER VIEWS (BOARD & HISTORY) --- */
-        .view-main .split-wrapper { display: block; }
-        .view-board .split-wrapper, .view-history .split-wrapper { display: none; }
+        .layer-back .btn-check { border-color: rgba(255,255,255,0.3); }
+        .layer-back .btn-check:active { background: #3b82f6; border-color: #3b82f6; }
         
-        .other-views { display: none; padding: 30px 20px; height: calc(100vh - 65px); overflow-y: auto; background: #050505; color: #fff; }
-        .view-board .board-area, .view-history .history-area { display: block; }
+        .layer-front .btn-check { border-color: rgba(0,0,0,0.2); }
+        .layer-front .btn-check:active { background: #111; border-color: #111; }
 
-        .other-views h1 { font-size: 28px; font-weight: 800; margin-bottom: 20px; }
+        /* --- FLOATING DOCK (MELAYANG DI TENGAH) --- */
+        .dock-container {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 8px; padding: 10px; border-radius: 30px;
+            background: rgba(20, 20, 22, 0.65);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 100;
+        }
 
-        /* UPGRADED BOARD GRID */
+        .dock-item {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 65px; height: 50px; border-radius: 20px;
+            background: transparent; border: none; color: #888;
+            font-size: 10px; font-weight: 800; cursor: pointer; transition: all 0.3s;
+        }
+
+        .dock-item svg { width: 22px; height: 22px; fill: currentColor; margin-bottom: 4px; transition: transform 0.3s; }
+        
+        .dock-item:hover { color: #fff; background: rgba(255,255,255,0.05); }
+        .dock-item.active { color: #fff; background: rgba(255,255,255,0.1); }
+        .dock-item.active svg { transform: scale(1.1); fill: #3b82f6; }
+
+        /* --- OTHER VIEWS --- */
+        .view-board, .view-history {
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #050505; color: #fff; padding: 40px 20px 100px 20px;
+            overflow-y: auto; display: none; opacity: 0; transition: opacity 0.3s;
+        }
+        
+        .view-board h1, .view-history h1 { font-size: 32px; font-weight: 800; margin-bottom: 30px; }
+
         .board-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
         .board-card {
-            background: #1a1a1e; border: 1px solid #333; border-radius: 16px;
-            padding: 18px; display: flex; flex-direction: column; justify-content: space-between; min-height: 140px;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px; padding: 20px; min-height: 150px;
+            display: flex; flex-direction: column; justify-content: space-between;
+            backdrop-filter: blur(10px);
         }
-        .board-text { font-size: 13px; font-weight: 600; line-height: 1.5; margin-bottom: 15px;}
-        .board-footer { display: flex; justify-content: space-between; align-items: center; }
-        .board-tag { font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; }
-        .tag-survival { background: rgba(255, 77, 77, 0.2); color: #ff4d4d; }
-        .tag-commander { background: rgba(31, 255, 193, 0.2); color: #1fffc1; }
+        .board-tag { font-size: 10px; font-weight: 800; padding: 6px 10px; border-radius: 8px; text-transform: uppercase; width: max-content;}
+        .tag-dark { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .tag-light { background: #fff; color: #111; }
     </style>
 </head>
-<body class="view-main">
+<body>
 
-    <div class="split-wrapper" id="split-wrapper">
+    <div class="app-container" id="view-main">
         
-        <div class="panel-right">
-            <div class="inner-content">
-                <div class="content-commander">
-                    <h2 class="panel-title title-commander">Commander</h2>
-                    <div class="input-group">
-                        <input type="text" id="commander-input" placeholder="Ide liar buat Markaz/Web?">
-                        <button class="btn-add btn-commander" onclick="addNote('commander')">Simpan Ide</button>
-                    </div>
-                    <ul class="task-list" id="commander-list"></ul>
+        <div class="layer-back">
+            <div class="content-wrapper">
+                <div class="side-left">
+                    <h2>Survival</h2>
+                    <input type="text" id="dark-input" class="input-box" placeholder="Urusan darurat?">
+                    <button class="btn-submit" onclick="addNote('dark')">Tambah</button>
+                    <ul class="task-list" id="dark-list"></ul>
                 </div>
             </div>
         </div>
 
-        <div class="panel-left" id="panel-left">
-            <div class="inner-content">
-                <div class="content-survival">
-                    <h2 class="panel-title title-survival">Survival</h2>
-                    <div class="input-group">
-                        <input type="text" id="survival-input" placeholder="Apa darurat minggu ini?">
-                        <button class="btn-add btn-survival" onclick="addNote('survival')">Tambah Prioritas</button>
-                    </div>
-                    <ul class="task-list" id="survival-list"></ul>
+        <div class="layer-front" id="layer-front">
+            <div class="content-wrapper">
+                <div class="side-left"></div> <div class="side-right">
+                    <h2>Commander</h2>
+                    <input type="text" id="light-input" class="input-box" placeholder="Ide brilian?">
+                    <button class="btn-submit" onclick="addNote('light')">Simpan</button>
+                    <ul class="task-list" id="light-list"></ul>
                 </div>
             </div>
         </div>
 
-        <div class="divider" id="drag-divider">
+        <div class="slider" id="drag-slider">
             <div class="gojo-handle"></div>
         </div>
-
     </div>
 
-    <div class="other-views board-area">
-        <h1>Brainstorm Board</h1>
+    <div class="view-board" id="view-board">
+        <h1>Board</h1>
         <div class="board-grid" id="board-grid"></div>
     </div>
 
-    <div class="other-views history-area">
-        <h1>Log History</h1>
+    <div class="view-history" id="view-history">
+        <h1>History</h1>
         <ul class="task-list" id="history-list"></ul>
     </div>
 
-    <div class="tab-bar">
-        <button class="tab-item active" onclick="switchView('main', this)">
-            <svg class="icon" viewBox="0 0 24 24"><path d="M14 10H3v2h11v-2zm0-4H3v2h11V6zm4 8.29L16.29 13l-1.42 1.41L16.59 16l-1.72 1.71 1.42 1.41L18 17.41l1.71 1.71 1.41-1.41L19.41 16l1.71-1.71-1.41-1.41L18 14.29zM3 16h11v-2H3v2z"></path></svg>
+    <div class="dock-container">
+        <button class="dock-item active" onclick="switchTab('main', this)">
+            <svg viewBox="0 0 24 24"><path d="M14 10H3v2h11v-2zm0-4H3v2h11V6zm4 8.29L16.29 13l-1.42 1.41L16.59 16l-1.72 1.71 1.42 1.41L18 17.41l1.71 1.71 1.41-1.41L19.41 16l1.71-1.71-1.41-1.41L18 14.29zM3 16h11v-2H3v2z"></path></svg>
             Notes
         </button>
-        <button class="tab-item" onclick="switchView('board', this)">
-            <svg class="icon" viewBox="0 0 24 24"><path d="M4 11h5V5H4v6zm0 7h5v-6H4v6zm6 0h5v-6h-5v6zm6 0h5v-6h-5v6zm-6-7h5V5h-5v6zm6-6v6h5V5h-5z"></path></svg>
+        <button class="dock-item" onclick="switchTab('board', this)">
+            <svg viewBox="0 0 24 24"><path d="M4 11h5V5H4v6zm0 7h5v-6H4v6zm6 0h5v-6h-5v6zm6 0h5v-6h-5v6zm-6-7h5V5h-5v6zm6-6v6h5V5h-5z"></path></svg>
             Board
         </button>
-        <button class="tab-item" onclick="switchView('history', this)">
-            <svg class="icon" viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"></path></svg>
+        <button class="dock-item" onclick="switchTab('history', this)">
+            <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"></path></svg>
             History
         </button>
     </div>
 
     <script>
-        // DATA STATE
-        let tasks = JSON.parse(localStorage.getItem('entj_v3')) || [
-            { id: 1, type: 'survival', text: 'Ujian lusa! Review materi.', date: '20 Jun 2026' },
-            { id: 2, type: 'commander', text: 'Ide: Template visual markaz.', date: '20 Jun 2026' }
+        // DATA
+        let tasks = JSON.parse(localStorage.getItem('entj_v4')) || [
+            { id: 1, type: 'dark', text: 'Ujian lusa! Review total.', date: '20 Jun 2026' },
+            { id: 2, type: 'light', text: 'Template web markaz baru.', date: '20 Jun 2026' }
         ];
 
-        // SPLIT SCREEN DRAG LOGIC
-        const divider = document.getElementById('drag-divider');
-        const leftPanel = document.getElementById('panel-left');
-        const wrapper = document.getElementById('split-wrapper');
+        // CLIP-PATH SLIDER LOGIC (The Secret Sauce)
+        const slider = document.getElementById('drag-slider');
+        const layerFront = document.getElementById('layer-front');
+        const appContainer = document.querySelector('.app-container');
         let isDragging = false;
 
         const startDrag = () => { isDragging = true; };
@@ -247,29 +253,40 @@
         const drag = (e) => {
             if (!isDragging) return;
             let clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-            let percent = (clientX / wrapper.offsetWidth) * 100;
+            let percent = (clientX / appContainer.offsetWidth) * 100;
 
-            // Batas drag biar gak hilang keluar layar
             if (percent < 0) percent = 0;
             if (percent > 100) percent = 100;
 
-            leftPanel.style.width = `${percent}%`;
-            divider.style.left = `${percent}%`;
+            // Slider gerak
+            slider.style.left = `${percent}%`;
+            // Masking ngebuka perlahan, gak ada konten yang kegencet!
+            layerFront.style.clipPath = `inset(0 0 0 ${percent}%)`;
         };
 
-        divider.addEventListener('mousedown', startDrag);
+        slider.addEventListener('mousedown', startDrag);
         document.addEventListener('mousemove', drag);
         document.addEventListener('mouseup', stopDrag);
-        divider.addEventListener('touchstart', startDrag);
+        slider.addEventListener('touchstart', startDrag);
         document.addEventListener('touchmove', drag);
         document.addEventListener('touchend', stopDrag);
 
-        // NAVIGATION
-        function switchView(view, tabEl) {
-            document.body.className = `view-${view}`;
-            document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
-            tabEl.classList.add('active');
-            renderData();
+        // TAB NAVIGATION
+        function switchTab(viewId, btn) {
+            document.querySelectorAll('.dock-item').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Hide all
+            document.getElementById('view-main').style.display = 'none';
+            document.getElementById('view-board').style.display = 'none';
+            document.getElementById('view-board').style.opacity = '0';
+            document.getElementById('view-history').style.display = 'none';
+            document.getElementById('view-history').style.opacity = '0';
+
+            // Show target
+            const target = document.getElementById(`view-${viewId}`);
+            target.style.display = 'block';
+            setTimeout(() => target.style.opacity = '1', 50); // Fade in effect
         }
 
         // CRUD
@@ -279,47 +296,49 @@
             if (!text) return;
 
             const dateStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-            tasks.push({ id: Date.now(), type, text, date: dateStr });
+            tasks.unshift({ id: Date.now(), type, text, date: dateStr });
             inputEl.value = '';
             
-            localStorage.setItem('entj_v3', JSON.stringify(tasks));
+            localStorage.setItem('entj_v4', JSON.stringify(tasks));
             renderData();
         }
 
         function checkTask(id) {
             tasks = tasks.filter(t => t.id !== id);
-            localStorage.setItem('entj_v3', JSON.stringify(tasks));
+            localStorage.setItem('entj_v4', JSON.stringify(tasks));
             renderData();
         }
 
-        // RENDER UI
+        // RENDER
         function renderData() {
-            const listSurv = document.getElementById('survival-list');
-            const listCmd = document.getElementById('commander-list');
+            const darkList = document.getElementById('dark-list');
+            const lightList = document.getElementById('light-list');
             const gridBoard = document.getElementById('board-grid');
-            const listHist = document.getElementById('history-list');
+            const histList = document.getElementById('history-list');
 
-            listSurv.innerHTML = ''; listCmd.innerHTML = ''; gridBoard.innerHTML = ''; listHist.innerHTML = '';
+            darkList.innerHTML = ''; lightList.innerHTML = ''; gridBoard.innerHTML = ''; histList.innerHTML = '';
 
             tasks.forEach(task => {
-                const cardHtml = `
+                const card = `
                     <li class="task-card">
                         <div>
-                            <p class="task-text">${task.text}</p>
+                            <span class="task-text">${task.text}</span>
                             <span class="task-date">${task.date}</span>
                         </div>
-                        <button class="btn-check" onclick="checkTask(${task.id})">✓</button>
+                        <button class="btn-check" onclick="checkTask(${task.id})"></button>
                     </li>`;
 
-                if (task.type === 'survival') listSurv.innerHTML += cardHtml;
-                if (task.type === 'commander') listCmd.innerHTML += cardHtml;
-                listHist.innerHTML += cardHtml;
+                if (task.type === 'dark') darkList.innerHTML += card;
+                if (task.type === 'light') lightList.innerHTML += card;
+                histList.innerHTML += card;
 
-                const tag = task.type === 'survival' ? '<span class="board-tag tag-survival">Urgent</span>' : '<span class="board-tag tag-commander">Idea</span>';
+                const tagClass = task.type === 'dark' ? 'tag-dark' : 'tag-light';
+                const tagText = task.type === 'dark' ? 'SURVIVAL' : 'COMMANDER';
+                
                 gridBoard.innerHTML += `
                     <div class="board-card">
-                        <p class="board-text">${task.text}</p>
-                        <div class="board-footer">${tag}</div>
+                        <p class="task-text" style="line-height: 1.5;">${task.text}</p>
+                        <span class="board-tag ${tagClass}">${tagText}</span>
                     </div>`;
             });
         }
