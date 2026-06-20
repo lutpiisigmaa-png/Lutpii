@@ -10,7 +10,7 @@
         }
     </script>
    
-    <title>Limitlees</title>
+    <title>Limitless</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
 
@@ -136,8 +136,8 @@
         .board-card { border-radius: 20px; padding: 20px; min-height: 150px; display: flex; flex-direction: column; justify-content: space-between; }
         .board-tag { font-size: 10px; font-weight: 800; padding: 6px 10px; border-radius: 8px; text-transform: uppercase; width: max-content;}
 
-        /* WARNA KARTU BOARD & HISTORY */
-        .card-survival {
+       /* WARNA KARTU BOARD & HISTORY */
+        .card-reality {
             background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
             border: 1px solid rgba(59, 130, 246, 0.4); box-shadow: 0 4px 10px rgba(0,0,0,0.3); color: #fff;
         }
@@ -146,14 +146,14 @@
         .card-reality .btn-check { border-color: rgba(255,255,255,0.4); }
         .card-reality .board-tag { background: #3b82f6; color: #fff; }
 
-        .card-commander {
+        .card-limitless {
             background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
             border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 4px 10px rgba(0,0,0,0.05); color: #111;
         }
-        .card-limitlees .task-text { color: #111; }
-        .card-limitlees .task-date { color: rgba(0,0,0,0.5); }
-        .card-limitlees .btn-check { border-color: rgba(0,0,0,0.3); }
-        .card-limitlees .board-tag { background: #111; color: #fff; }
+        .card-limitless .task-text { color: #111; }
+        .card-limitless .task-date { color: rgba(0,0,0,0.5); }
+        .card-limitless .btn-check { border-color: rgba(0,0,0,0.3); }
+        .card-limitless .board-tag { background: #111; color: #fff; }
     </style>
 </head>
 <body>
@@ -174,7 +174,7 @@
             <div class="content-wrapper">
                 <div class="side-left"></div>
                 <div class="side-right" id="content-light">
-                    <h2>Limitlees</h2>
+                    <h2>Limitless</h2>
                     <input type="text" id="light-input" class="input-box" placeholder="Ide brilian?">
                     <button class="btn-submit" onclick="addNote('light')">Simpan</button>
                     <ul class="task-list" id="light-list"></ul>
@@ -317,9 +317,9 @@
                 if (task.type === 'dark') darkList.innerHTML += cardMain;
                 if (task.type === 'light') lightList.innerHTML += cardMain;
 
-                const themeClass = task.type === 'dark' ? 'card-reality' : 'card-limitlees';
-                const tagText = task.type === 'dark' ? 'REALITY' : 'LIMITLEES';
-
+                const themeClass = task.type === 'dark' ? 'card-reality' : 'card-limitless';
+                const tagText = task.type === 'dark' ? 'REALITY' : 'LIMITLESS';
+                
                 histList.innerHTML += `
                     <li class="task-card ${themeClass}">
                         <div><span class="task-text">${task.text}</span><span class="task-date">${task.date}</span></div>
