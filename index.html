@@ -49,25 +49,26 @@
         .side-left { padding-right: 20px; }
         .side-right { padding-left: 20px; }
 
-        /* --- SLIDER TENGAH DIMUSNAHKAN GARISNYA --- */
+       /* --- SLIDER TENGAH DIMUSNAHKAN GARISNYA --- */
         .slider {
             position: absolute; top: 0; bottom: 0; left: 50%;
-            width: 0px; /* Di-nol-kan biar ga ada garis kampang */
+            width: 0px; 
             z-index: 50; cursor: ew-resize;
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* ICON GOJO ANTI BLOKIR */
-.custom-handle {
-    width: 55px; height: 55px; border-radius: 50%;
-    background-color: #111; /* Warna dasar kalau gambar telat loading */
-    background-image: url('./gojo.png');
-    background-size: cover; background-position: top center;
-    border: 3px solid #fff;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.6);
-    will-change: transform; 
-    margin-left: -27.5px;
-}
+      /* ICON GOJO PERFECT BULAT, GEDE, & TENGAH */
+        .custom-handle {
+            flex-shrink: 0; /* KUNCI BIAR GOJO GAK KEGENCET JADI TELUR */
+            width: 70px; height: 70px; /* UKURAN DIGEDEIN */
+            border-radius: 50%;
+            background-image: url('./gojo.png');
+            background-size: cover; background-position: center;
+            border: none; /* LINGKARAN PUTIH DIMUSNAHKAN */
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+            will-change: transform; 
+            /* margin-left DIHAPUS BIAR POSISINYA PERFECT DI TENGAH */
+        }
 
         /* --- STYLING UI --- */
         h2 { font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; }
