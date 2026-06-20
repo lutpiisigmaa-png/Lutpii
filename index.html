@@ -1,1 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ENTJ Personal Command Center</title>
+    <style>
+        /* CSS VARIABLES FOR DYNAMIC THEMING */
+        :root {
+            --bg-color: #121214;
+            --card-bg: #1a1a1e;
+            --text-main: #ffffff;
+            --text-muted: #a0a0aa;
+            --accent-color: #ef4444; /* Default: Survival (Red) */
+            --border-color: #27272a;
+        }
 
+        /* THEME MODES */
+        .theme-survival {
+            --bg-color: #0f0909;
+            --card-bg: #1c1010;
+            --accent-color: #f43f5e;
+            --text-main: #ffe4e6;
+        }
+
+        .theme-maintenance {
+            --bg-color: #12100e;
+            --card-bg: #1c1917;
+            --accent-color: #f59e0b;
+            --text-main: #fef3c7;
+        }
+
+        .theme-commander {
+            --bg-color: #06100e;
+            --card-bg: #0d1e1b;
+            --accent-color: #10b981;
+            --text-main: #ecfdf5;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            transition: background-color 0.4s ease, border-color 0.4s ease, color 0.3s ease;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        header {
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* MODE SWITCHER COMPONENT */
+        .mode-switcher {
+            display: flex;
+            background: #27272a;
+            padding: 4px;
+            border-radius: 12px;
+            margin: 20px 0;
+            gap: 4px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            background: transparent;
+            color: #a0a0aa;
+        }
+
+        .mode-btn.active[data-mode="survival"] { background: #f43f5e; color: #fff; }
+        .mode-btn.active[data-mode="maintenance"] { background: #f59e0b; color: #12100e; }
+        .mode-btn.active[data-mode="commander"] { background: #10b981; color: #fff; }
+
+        /* CARDS / CONTAINERS */
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card h2::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background-color: var(--accent-color);
+            border-radius: 2px;
+        }
+
+        /* INPUTS & BUTTONS */
+        .input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        input, select {
+            flex: 1;
+            background: #27272a;
+            border: 1px solid #3f3f46;
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--accent-color);
+        }
+
+        .btn-add {
+            background-color: var(--accent-color);
+            color: #fff;
+            border: none;
+            padding: 0 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* TASK LISTS */
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 3px solid transparent;
+        }
+
+        .task-item.priority-survival { border-left-color: #f43f5e; }
+        .task-item.priority-maintenance { border-left-color: #f59e0b; }
+        .task-item.priority-commander { border-left-color: #10b981; }
+
+        .task-text {
+            font-size: 14px;
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .btn-delete {
+            background: transparent;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        /* BLOCKED OVERLAY FOR BRAIN DUMP */
+        .blocked-info {
+            text-align: center;
+            padding: 20px 0;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body class="theme-survival">
+
+    <div class="container">
+        <header>
+            <h1 id="app-title">SURVIVAL MODE</h1>
+            <p>Sistem Kontrol Fokus Otak ENTJ</p>
+        </header>
+
+        <div class="mode-switcher">
+            <button class="mode-btn active" data-mode="survival">SURVIVAL</button>
+            <button class="mode-btn" data-mode="maintenance">MAINTAIN</button>
+            <button class="mode-btn" data-mode="commander">COMMANDER</button>
+        </div>
+
+        <div class="card">
+            <h2>Tambah Agenda Baru</h2>
+            <div class="input-group">
+                <input type="text" id="task-input" placeholder="Apa yang mau dikerjain?">
+                <select id="task-category">
+                    <option value="survival">Survival (Ujian/Kerja)</option>
+                    <option value="maintenance">Maintenance (Rutin)</option>
+                    <option value="commander">Commander (Ide/Web)</option>
+                </select>
+                <button class="btn-add" id="add-task-btn">+</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Daftar Prioritas Hari Ini</h2>
+            <ul class="task-list" id="task-list-container">
+                </ul>
+        </div>
+
+        <div class="card">
+            <h2>Brain Dump Ide Liar</h2>
+            <div class="input-group">
+                <input type="text" id="dump-input" placeholder="Ada ide web/media? Tulis aja dulu...">
+                <button class="btn-add" id="add-dump-btn">+</button>
+            </div>
+            <div id="dump-list-area">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        // DATA STATE MANAGEMENT
+        let state = {
+            currentMode: 'survival',
+            tasks: JSON.parse(localStorage.getItem('entj_tasks')) || [
+                { id: 1, text: 'Belajar materi ujian besok pagi', category: 'survival' },
+                { id: 2, text: 'Selesaiin Bare Minimum kerjaan tetap', category: 'survival' },
+                { id: 3, text: 'Cek broadcast rutin Media Markaz', category: 'maintenance' },
+                { id: 4, text: 'Rombak total UI Web Markaz pake framework baru', category: 'commander' }
+            ],
+            brainDumps: JSON.parse(localStorage.getItem('entj_dumps')) || []
+        };
+
+        // DOM ELEMENTS
+        const bodyEl = document.body;
+        const appTitle = document.getElementById('app-title');
+        const modeButtons = document.querySelectorAll('.mode-btn');
+        const taskInput = document.getElementById('task-input');
+        const taskCategory = document.getElementById('task-category');
+        const addTaskBtn = document.getElementById('add-task-btn');
+        const taskListContainer = document.getElementById('task-list-container');
+        const dumpInput = document.getElementById('dump-input');
+        const addDumpBtn = document.getElementById('add-dump-btn');
+        const dumpListArea = document.getElementById('dump-list-area');
+
+        // SAVE TO LOCAL STORAGE
+        function saveState() {
+            localStorage.setItem('entj_tasks', JSON.stringify(state.tasks));
+            localStorage.setItem('entj_dumps', JSON.stringify(state.brainDumps));
+        }
+
+        // SWITCH THEME & MODE LOGIC
+        function switchMode(newMode) {
+            state.currentMode = newMode;
+            
+            // Update UI Theme Classes
+            bodyEl.className = '';
+            bodyEl.classList.add(`theme-${newMode}`);
+            
+            // Update Active Buttons
+            modeButtons.forEach(btn => {
+                if (btn.getAttribute('data-mode') === newMode) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            // Update Header Text
+            if (newMode === 'survival') appTitle.innerText = '🔴 SURVIVAL MODE';
+            if (newMode === 'maintenance') appTitle.innerText = '🟡 MAINTENANCE MODE';
+            if (newMode === 'commander') appTitle.innerText = '🟢 COMMANDER MODE';
+
+            renderApp();
+        }
+
+        // RENDER METHOD
+        function renderApp() {
+            // 1. RENDER TASKS BASED ON MODE PRIVILEGES
+            taskListContainer.innerHTML = '';
+            
+            let filteredTasks = state.tasks.filter(task => {
+                if (state.currentMode === 'survival') {
+                    return task.category === 'survival'; // Cuma boleh liat survival
+                } else if (state.currentMode === 'maintenance') {
+                    return task.category === 'survival' || task.category === 'maintenance'; // Survival + Rutin
+                } else {
+                    return true; // Commander mode: liat semua!
+                }
+            });
+
+            if (filteredTasks.length === 0) {
+                taskListContainer.innerHTML = `<li class="blocked-info">Gak ada tugas di mode ini. Santai sejenak, Komandan.</li>`;
+            }
+
+            filteredTasks.forEach(task => {
+                const li = document.createElement('li');
+                li.className = `task-item priority-${task.category}`;
+                li.innerHTML = `
+                    <span class="task-text">${task.text}</span>
+                    <button class="btn-delete" onclick="deleteTask(${task.id})">×</button>
+                `;
+                taskListContainer.appendChild(li);
+            });
+
+            // 2. RENDER BRAIN DUMP PRIVILEGES
+            dumpListArea.innerHTML = '';
+            if (state.currentMode !== 'commander') {
+                // Kunci list ide kalau bukan Commander Mode!
+                dumpListArea.innerHTML = `
+                    <div class="blocked-info">
+                        🔒 ${state.brainDumps.length} Ide tersimpan aman. Masuk "COMMANDER" mode buat eksekusi/melihat list ide ini.
+                    </div>`;
+            } else {
+                if (state.brainDumps.length === 0) {
+                    dumpListArea.innerHTML = `<div class="blocked-info">Belum ada ide liar tercatat.</div>`;
+                } else {
+                    const ul = document.createElement('ul');
+                    ul.className = 'task-list';
+                    state.brainDumps.forEach((dump, index) => {
+                        const li = document.createElement('li');
+                        li.className = 'task-item priority-commander';
+                        li.innerHTML = `
+                            <span class="task-text">💡 ${dump}</span>
+                            <button class="btn-delete" onclick="deleteDump(${index})">×</button>
+                        `;
+                        ul.appendChild(li);
+                    });
+                    dumpListArea.appendChild(ul);
+                }
+            }
+        }
+
+        // INTERACTION LOGIC
+        addTaskBtn.addEventListener('click', () => {
+            const text = taskInput.value.trim();
+            const category = taskCategory.value;
+
+            if (!text) return;
+
+            // Aturan proteksi ENTJ: Gak boleh nambahin tugas non-survival pas lagi survival mode!
+            if (state.currentMode === 'survival' && category !== 'survival') {
+                alert('Tahan egomu, Komandan! Lu lagi SURVIVAL MODE. Fokus ujian ama kerjaan tetap dulu!');
+                return;
+            }
+
+            state.tasks.push({ id: Date.now(), text, category });
+            taskInput.value = '';
+            saveState();
+            renderApp();
+        });
+
+        addDumpBtn.addEventListener('click', () => {
+            const text = dumpInput.value.trim();
+            if (!text) return;
+
+            state.brainDumps.push(text);
+            dumpInput.value = '';
+            saveState();
+            renderApp();
+            
+            if (state.currentMode !== 'commander') {
+                alert('Ide disimpan otomatis ke LocalStorage! Sekarang balik fokus belajar sana!');
+            }
+        });
+
+        function deleteTask(id) {
+            state.tasks = state.tasks.filter(t => t.id !== id);
+            saveState();
+            renderApp();
+        }
+
+        function deleteDump(index) {
+            state.brainDumps.splice(index, 1);
+            saveState();
+            renderApp();
+        }
+
+        // INITIAL EVENT LISTENERS FOR BUTTONS
+        modeButtons.forEach(btn => {
+            btn.addEventListener('click', () => switchMode(btn.getAttribute('data-mode')));
+        });
+
+        // INIT RUN
+        switchMode('survival');
+    </script>
+</body>
+</html>
