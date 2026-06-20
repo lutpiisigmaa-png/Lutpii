@@ -57,17 +57,20 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-      /* ICON GOJO PERFECT BULAT, GEDE, & TENGAH */
+    /* ICON GOJO FULL BODY (BEBAS DARI LINGKARAN) */
         .custom-handle {
-            flex-shrink: 0; /* KUNCI BIAR GOJO GAK KEGENCET JADI TELUR */
-            width: 70px; height: 70px; /* UKURAN DIGEDEIN */
-            border-radius: 50%;
-            background-image: url('./gojo.png');
-            background-size: cover; background-position: center;
-            border: none; /* LINGKARAN PUTIH DIMUSNAHKAN */
-            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+            flex-shrink: 0; 
+            width: 85px; height: 85px; /* Gua gedein dikit biar Chibi-nya jelas */
+            background-image: url('./gojo.png'); /* Tetap pake file PNG lu */
+            background-size: contain; /* KUNCI BIAR FULL BODY GAK KEPOTONG */
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: transparent; /* Pastiin gak ada warna latar */
+            border: none;
+            border-radius: 0; /* MUSNAHKAN KUTUKAN LINGKARAN */
+            box-shadow: none; /* Hapus bayangan bulat/kotak */
+            filter: drop-shadow(0 8px 10px rgba(0,0,0,0.6)); /* Bayangan ngikutin bentuk badan Gojo */
             will-change: transform; 
-            /* margin-left DIHAPUS BIAR POSISINYA PERFECT DI TENGAH */
         }
 
         /* --- STYLING UI --- */
